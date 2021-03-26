@@ -1,0 +1,235 @@
+## Copyright © 2021, Oracle and/or its affiliates. 
+## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
+
+title: Jboss/Wildfly Terraform Input Variables
+description: Jboss/Wildfly Terraform Input Variables
+schemaVersion: 1.1.0
+version: "20200821"
+variableGroups:
+  - title: "Network"
+    variables:
+      - ${compartment_id}
+      - ${vcn_cidr_block}
+      - prefix
+
+  - title: "Instances"
+    variables:
+      - jboss_node_count
+      - jboss_vm_shape
+      - ssh_authorized_keys
+      - jboss_admin_username
+      - jboss_admin_password
+
+  - title: "Deployment Mode"
+    variables:
+      - domain_mode
+
+  - title: "Bastion"
+    variables:
+      - bastion_vm_shape
+
+  - title: "Provision Autonomous Database"
+    variables:
+      - provision_atp
+
+  - title: "Autonomous Database (Transaction Processing)"
+    visible: provision_atp
+    variables:
+      - atp_admin_password
+      - atp_display_name
+      - atp_db_name
+      - atp_cpu_core_count
+      - atp_storage_tbs
+      - atp_autoscaling
+
+  - title: "Create a JDBC Datasource"
+    visible: provision_atp
+    variables:
+      - create_jdbc_ds
+
+  - title: "JDBC Connection"
+    visible: create_jdbc_ds
+    variables:
+      - ds_name
+      - atp_username
+      - atp_password
+
+  - title: "Hidden Variables"
+    visible: false
+    variables:
+      - region
+      - tenancy_ocid
+      - public_subnet
+      - atp_private_subnet
+
+variables:
+  # Hidden variables
+  tenancy_ocid:
+    type: string
+    title: Tenancy ID
+    description: The Oracle Cloud Identifier (OCID) for your tenancy
+    required: true
+
+  region:
+    type: oci:identity:region:name
+    title: Region
+    description: The region in which to create all resources
+    required: true
+
+  # Exposed variables
+  compartment_id:
+    type: oci:identity:compartment:id
+    title: Network Compartment
+    description: The compartment where you want to create the network resources such as Virtual Cloud Network, security lists, route tables and gateways.
+    required: true
+    default: compartment_ocid
+
+  vcn_cidr_block:
+    type: string
+    title: VCN CIDR block
+    description: The CIDR block for the VCN
+    required: true
+    default: "10.1.0.0/16"
+    pattern: "^(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9]).(25[0-5]|2[0-4][0-9]|1[0-9][0-9]|[1-9]?[0-9])\\/(3[0-2]|[1-2]?[0-9])$"
+    
+  prefix:
+    type: string
+    title: Resources Prefix
+    description: The prefix to name all resources
+    required: true
+    default: "jboss"
+    pattern: "^[a-z0-9]{1,8}$"
+
+  jboss_node_count:
+    title: Node Count
+    description: Number of VMs to provision
+    type: number
+    required: true
+    default: 1
+
+  ssh_authorized_keys:
+    type: oci:core:ssh:publickey
+    title: SSH Public Key
+    required: true
+    description: Public SSH Key to access VM via SSH
+
+  jboss_vm_shape:
+    type: oci:core:instanceshape:name
+    title: JBoss/WildFly VM(s) Shape
+    description: The shape for the JBoss/WildFly instance(s)
+    required: true
+    dependsOn:
+      compartmentId: ${compartment_id}
+
+  jboss_admin_username:
+    type: string
+    title: WildFly Administrator Username
+    description: The user name of the admin
+    required: true
+    default: "admin"
+    pattern: "^[a-z]{4,16}$"
+
+  jboss_admin_password:
+    type: password
+    title: WildFly Administrator Password
+    description: The password for the WildFly admin user
+    required: true
+
+  bastion_vm_shape:
+    type: oci:core:instanceshape:name
+    title: Bastion Host VM Shape
+    description: The shape for the instances
+    required: true
+    dependsOn:
+      compartmentId: ${compartment_id}
+
+  provision_atp:
+    type: boolean
+    title: Provision an Autonomous Database (ATP)
+    description: Provision an Autonomous Database for Transaction Processing
+    required: true
+    default: true
+
+  atp_private_subnet:
+    type: boolean
+    title: Provision ATP in private subnet
+    description: Provision an Autonomous Database for Transaction Processing
+    required: true
+    default: false
+
+  atp_admin_password:
+    type: password
+    title: Autonomous DB Administrator Password
+    description: The password for the admin user (12 to 30 characters [a-zA-Z0-9@#$!&%]$)
+    required: true
+    pattern: "^[a-zA-Z0-9@#$!&%]{12,30}$"
+
+  atp_display_name:
+    type: string
+    title: ATP Service Display Name
+    description: Name of the ATP service
+    required: true
+    default: "JBossATP"
+
+  atp_db_name:
+    type: string
+    title: ATP Database Name
+    description: Name of the ATP Database
+    required: true
+    default: "db"
+
+  atp_cpu_core_count:
+    type: number
+    title: ATP CPU Core Count
+    description: Number of CPU cores to use with ATP
+    required: true
+    default: 1
+
+  atp_storage_tbs:
+    type: number
+    title: ATP Storage (in TBs)
+    description: Number of TBs of storage to use with ATP
+    required: true
+    default: 1
+
+  atp_autoscaling:
+    type: boolean
+    title: Enable ATP Autoscaling
+    description: Enable ATP auto-scaling (not available on Free Tier)
+    required: true
+    default: false
+
+  create_jdbc_ds:
+    type: boolean
+    title: Create a JDBC Datasource
+    description: Create and configure a JDBC datasource for ATP
+    required: true
+    default: false
+
+  ds_name:
+    type: string
+    title: Datasource name
+    description: the name of the datasource as found in the JNDI path java:/jdbc/<datasource-name>
+    required: true
+    default: OracleDS
+
+  atp_username:
+    type: string
+    title: Autonomous DB JDBC Username
+    description: The User for the JDBC connection
+    required: true
+
+  atp_password:
+    type: password
+    title: Autonomous DB JDBC User Password
+    description: The password for the JDBC connection user (12 to 30 characters [a-zA-Z0-9@#$!&%]$)
+    required: true
+    pattern: "^[a-zA-Z0-9@#$!&%]{12,30}$"
+
+  domain_mode:
+    type: boolean
+    title: Domain Controller mode
+    description: Setup as in Domain Controller mode for administration of all servers through a central node
+    required: true
+    default: true
+
