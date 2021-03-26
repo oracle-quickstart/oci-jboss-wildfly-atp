@@ -64,3 +64,4 @@ restorecon -Rv /opt/wildfly/bin/
 
 systemctl start wildfly
 systemctl enable wildfly
+touch /initial_setup.marker

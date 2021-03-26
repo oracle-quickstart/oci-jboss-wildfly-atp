@@ -25,7 +25,7 @@ resource "null_resource" "jboss_provisioning" {
   provisioner "remote-exec" {
     inline = [
         "echo 'Configure Admin console'",
-        "while [ ! -f /opt/wildfly/bin/add-user.sh ]; do sleep 5; done",
+        "while [ ! -f /initial_setup.marker ]; do sleep 5; done",
         "sudo su - -c \"/opt/wildfly/bin/add-user.sh -u ${var.admin_username} -r ManagementRealm -p \"${var.admin_password}\"\""
     ]
   }
