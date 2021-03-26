@@ -26,7 +26,7 @@ Note that the Resource Manager does not currently support deploying the ATP data
 
 ### Deploy Using Oracle Resource Manager
 
-1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-quickstart/oci-jboss-wildfly-atp/releases/download/v1.4.0/oci-jboss-latest.zip)
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-quickstart/oci-jboss-wildfly-atp/releases/latest/download/oci-jboss-latest.zip)
 
     If you aren't already signed in, when prompted, enter the tenancy and user credentials.
 
