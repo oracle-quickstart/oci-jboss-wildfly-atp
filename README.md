@@ -4,7 +4,7 @@
 
 This template deploys WildFly on 1 or more VM instances in a private subnet, with an HTTP load balancer in a public subnet, as well as a bastion host to access the Admin Console. It also deploys an Autonomous Database (ATP) and configures the JBDC driver.
 
-To deploy applications, you'll need to create the datasource(s) / JDBC connections, and copy the files over.
+To deploy applications, you'll need to create the datasource(s) / JDBC connections. This can be done through the terraform or Ressource Manager input: choose the Create Datasource option and provide the necessary information.
 
 ## Requirements
 
@@ -13,7 +13,7 @@ To deploy applications, you'll need to create the datasource(s) / JDBC connectio
 
 ### Domain controller mode
 
-If you deploy applications with the web console, not using the Domain Controller mode, the application will only be deployed on the server you are tunneling too. To deploy on multiple JBoss servers, you'll need to connect to each server's console. Use Domain controller mode (the default) to let WildFly manage the deployement on multiple servers.
+ Domain Controller mode allows one node to manage deployments on all other nodes (the Domain Controller). If you uncheck the Domain Mode option (i.e you choose Standalone mode), you'll need to deploy applications on each individual server.
 
 ## Installation
 
@@ -22,7 +22,7 @@ There are 2 options to install this template:
 - Run the stack with the OCI Resource manager
 - Run terraform locally 
 
-Note that the Resource Manager does not currently support deploying the ATP database in a private subnet, so the default with Resource Manager is to deploy in a public subnet. The default for the terraform locally is to deploy in a private subnet.
+*Note that the Resource Manager does not currently support deploying the ATP database in a **private subnet**, so the default with Resource Manager is to deploy in a public subnet. The default for the terraform locally is to deploy in a private subnet.*
 
 ### Deploy Using Oracle Resource Manager
 
@@ -105,7 +105,27 @@ There is no application deployed, but once deployed applications will be availab
 
 http://<LOAD_BALANCER_IP>/
 
-To access the admin console, you can tunnel to the jboss instance through the bastion host with 
+To access the admin console, you have 2 options:
+
+### Access the console through a SOCKSv5 proxy
+
+Create a SOCKSv5 proxy through the public IP of the bastion host.
+
+For example SOCKS v5 proxy on port 1088
+
+```bash
+ssh -C -D 1088 opc@150.136.41.148
+```
+
+Then configure your browser to use a manual SOCK5 proxy, (On Firefox, click **Preferences**, then search for **PROXY**, and click **Settings**). Select Manual Proxy, and SOCKSv5 option. Pass it 'localhost' as the host and 1088 as the port.
+
+You can then connect through the browser using the Private IP of the server.
+
+For example: https://10.1.2.2:9990/ to reach the WildFly console.
+
+### Access the console through SSH tunnel
+
+You can tunnel to the jboss instance through the bastion host with 
 
 ```bash
 export BASTION_IP=<bastion-ip>
@@ -117,26 +137,19 @@ ssh -S socket -O check opc@${BASTION_IP}
 ```
 
 Then the admin console will be available on localhost at: http://localhost:9990/
-
-Or you can create a SOCKS v5 proxy:
-
-For example SOCKS v5 proxy on port 1088
-
-```bash
-ssh -C -D 1088 opc@150.136.41.148
-```
-
-Then configure your browser to use a manual SOCK5 proxy, pass it 'localhost' as the host and 1088 as the port.
-You can then connect through the browser using the Private IP of the server.
-
-For example: https://10.1.2.2:9990/ to reach the WildFly console.
-
+ 
 ### SSH to a Jboss instance
 
 You can SSH to the JBoss instance using:
 
 ```bash
 ssh -J opc@${BASTION_IP} opc@${HOST}
+```
+
+or if you need to pass a private key identity, use:
+
+```bash
+ssh -o ProxyCommand="ssh -W %h:%p -i <private_key> opc@${BASTION_IP}" -i <private_key> opc@${HOST}
 ```
 
 ### SCP files to a JBoss instance
@@ -170,4 +183,4 @@ tf destroy
 
 3. Click **Terraform Actions** then **Destroy**
 
-
+4. Once the destroy job finished, delete the stack.
