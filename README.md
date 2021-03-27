@@ -121,7 +121,7 @@ Then configure your browser to use a manual SOCK5 proxy, (On Firefox, click **Pr
 
 You can then connect through the browser using the Private IP of the server.
 
-For example: https://10.1.2.2:9990/ to reach the WildFly console.
+For example: http://10.1.2.2:9990/ to reach the WildFly console.
 
 ### Access the console through SSH tunnel
 
