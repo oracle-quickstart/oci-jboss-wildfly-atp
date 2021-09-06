@@ -26,7 +26,7 @@ There are 2 options to install this template:
 
 ### Deploy Using Oracle Resource Manager
 
-1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-quickstart/oci-jboss-wildfly-atp/releases/latest/download/oci-jboss-latest.zip)
+1. Click [![Deploy to Oracle Cloud](https://oci-resourcemanager-plugin.plugins.oci.oraclecloud.com/latest/deploy-to-oracle-cloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?region=home&zipUrl=https://github.com/oracle-quickstart/oci-jboss-wildfly-atp/releases/latest/download/oci-jboss-wildfly-atp-stack-latest.zip)
 
     If you aren't already signed in, when prompted, enter the tenancy and user credentials.
 
@@ -160,13 +160,6 @@ To SCP files to the JBoss instance (i.e. to deploy applications)
 scp -o ProxyCommand="ssh -W %h:%p opc@${BASTION_IP}" <file-to-transfer.ext> opc@${HOST}:~/
 ```
 
-## Reference Architecture
-
-See the document about this reference architecture here: [https://docs.oracle.com/en/solutions/wildfly-oci/index.html](https://docs.oracle.com/en/solutions/wildfly-oci/index.html)
-
-
-![](https://docs.oracle.com/en/solutions/wildfly-oci/img/architecture-wildfly-oci.png)
-
 ## Tear down
 
 ### Locally
@@ -184,3 +177,10 @@ tf destroy
 3. Click **Terraform Actions** then **Destroy**
 
 4. Once the destroy job finished, delete the stack.
+
+## Architecture Diagram
+![](./images/architecture-wildfly-oci.png)
+
+## Reference Archirecture
+
+For details of the architecture, see [_Deploy WildFly connected to an autonomous database_](https://docs.oracle.com/en/solutions/wildfly-oci/index.html)

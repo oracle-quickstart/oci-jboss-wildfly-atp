@@ -11,8 +11,20 @@ variable "instance_private_ips" {
   type = list(string)
 }
 
-variable "shape" {
-  default = "400Mbps"
+variable "defined_tags" {
+  default = ""
+}
+
+variable "lb_shape" {
+  default = "flexible"
+}
+
+variable "flex_lb_min_shape" {
+  default = "10"
+}
+
+variable "flex_lb_max_shape" {
+  default = "100"
 }
 
 variable "name" {
@@ -20,7 +32,7 @@ variable "name" {
 }
 
 variable "is_private" {
-  type = bool
+  type    = bool
   default = false
 }
 
@@ -40,16 +52,16 @@ variable "https_listener_port" {
   default = "443"
 }
 
-variable "use_http" { 
-  type = bool
+variable "use_http" {
+  type    = bool
   default = true
 }
 variable "use_https" {
-  type = bool
+  type    = bool
   default = true
 }
 variable "use_lb_termination" {
-  type = bool
+  type    = bool
   default = false
 }
 

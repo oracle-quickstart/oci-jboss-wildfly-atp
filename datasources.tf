@@ -3,9 +3,11 @@
 
 # Latest Oracle Linux image
 module "latest_ol8" {
-  source                   = "./modules/datasources/images/"
-  compartment_id           = var.compartment_id
-  display_name             = "Oracle-Linux-8.3-2021.01.12-0"
+  source           = "./modules/datasources/images/"
+  compartment_id   = var.compartment_id
+  instance_os      = "Oracle Linux"
+  linux_os_version = "8"
+  shape            = var.jboss_vm_shape
 }
 
 # Availability domains
@@ -18,4 +20,13 @@ module "fds" {
   source         = "./modules/datasources/domain/"
   compartment_id = var.compartment_id
   ad_names       = module.ADs.ad_names
+}
+
+data "oci_identity_region_subscriptions" "home_region_subscriptions" {
+  tenancy_id = var.tenancy_ocid
+
+  filter {
+    name   = "is_home_region"
+    values = [true]
+  }
 }

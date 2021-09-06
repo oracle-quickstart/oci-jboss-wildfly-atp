@@ -11,36 +11,36 @@ resource "null_resource" "atp_provisioning" {
   // Upload wallet files + datasource and script
   provisioner "file" {
     content = templatefile("${path.module}/configure_atp_wallet.sh.tpl", {
-        "atp_wallet_password" = join(",",random_string.wallet_password[*].result)
-        })
+      "atp_wallet_password" = join(",", random_string.wallet_password[*].result)
+    })
     destination = "/home/opc/configure_atp_wallet.sh"
 
     connection {
-      agent = false
-      timeout = "10m"
-      host = var.instance_ips[count.index]
-      user = "opc"
+      agent       = false
+      timeout     = "10m"
+      host        = var.instance_ips[count.index]
+      user        = "opc"
       private_key = var.ssh_private_key
 
-      bastion_user = "opc"
+      bastion_user        = "opc"
       bastion_private_key = var.ssh_private_key
-      bastion_host = var.bastion_host
+      bastion_host        = var.bastion_host
     }
   }
   provisioner "file" {
-    content = join(",", data.oci_database_autonomous_database_wallet.atp_database_wallet[*].content)
+    content     = join(",", oci_database_autonomous_database_wallet.atp_database_wallet[*].content)
     destination = "/home/opc/atp_wallet.b64"
 
     connection {
-      agent = false
-      timeout = "10m"
-      host = var.instance_ips[count.index]
-      user = "opc"
+      agent       = false
+      timeout     = "10m"
+      host        = var.instance_ips[count.index]
+      user        = "opc"
       private_key = var.ssh_private_key
 
-      bastion_user = "opc"
+      bastion_user        = "opc"
       bastion_private_key = var.ssh_private_key
-      bastion_host = var.bastion_host
+      bastion_host        = var.bastion_host
     }
   }
   provisioner "remote-exec" {
@@ -50,15 +50,15 @@ resource "null_resource" "atp_provisioning" {
       "sudo su - -c 'rm /home/opc/configure_atp_wallet.sh'",
     ]
     connection {
-      agent = false
-      timeout = "10m"
-      host = var.instance_ips[count.index]
-      user = "opc"
+      agent       = false
+      timeout     = "10m"
+      host        = var.instance_ips[count.index]
+      user        = "opc"
       private_key = var.ssh_private_key
 
-      bastion_user = "opc"
+      bastion_user        = "opc"
       bastion_private_key = var.ssh_private_key
-      bastion_host = var.bastion_host
+      bastion_host        = var.bastion_host
     }
   }
 }

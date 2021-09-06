@@ -10,7 +10,9 @@ resource "oci_core_vcn" "vcn" {
   display_name   = "${var.prefix} VCN"
   dns_label      = lower(replace(var.prefix, " ", ""))
   freeform_tags  = {}
+  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
+
 resource "oci_core_internet_gateway" "internet_gateway" {
   count          = var.public_subnet ? 1 : 0
   compartment_id = var.compartment_id
@@ -18,15 +20,18 @@ resource "oci_core_internet_gateway" "internet_gateway" {
 
   #Optional
   enabled       = true
-  defined_tags  = {}
   display_name  = "Internet Gateway"
   freeform_tags = {}
+  defined_tags  = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
+
 resource "oci_core_default_route_table" "default_route_table" {
   display_name               = "Default Route Table for ${oci_core_vcn.vcn.display_name}"
   freeform_tags              = {}
   manage_default_resource_id = oci_core_vcn.vcn.default_route_table_id
+  defined_tags               = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
+
 resource "oci_core_default_security_list" "default_security_list" {
   display_name = "Default Security List for ${oci_core_vcn.vcn.display_name}"
   egress_security_rules {
@@ -74,7 +79,9 @@ resource "oci_core_default_security_list" "default_security_list" {
   }
 
   manage_default_resource_id = oci_core_vcn.vcn.default_security_list_id
+  defined_tags               = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
+
 module "ingress_sr_tcp_9990" {
   source      = "./modules/network/security_list_rules/"
   type        = "ingress"
@@ -133,6 +140,7 @@ module "jboss_security_list" {
     module.ingress_sr_tcp_8080.security_rule,
     module.ingress_sr_tcp_8443.security_rule
   ]
+  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 module "loadbalancer_security_list" {
   source       = "./modules/network/security_lists/"
@@ -140,12 +148,14 @@ module "loadbalancer_security_list" {
   display_name = "Load Balancer Security List"
   ingress_security_rules = [module.ingress_sr_tcp_80.security_rule,
   module.ingress_sr_tcp_443.security_rule]
+  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 module "atp_security_list" {
   source                 = "./modules/network/security_lists/"
   vcn_id                 = oci_core_vcn.vcn.id
   display_name           = "ATP Security List"
   ingress_security_rules = [module.ingress_sr_tcp_1522.security_rule]
+  defined_tags           = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 resource "oci_core_default_dhcp_options" "default_dhcp_options" {
 
@@ -171,6 +181,7 @@ resource "oci_core_default_dhcp_options" "default_dhcp_options" {
     #server_type = <<Optional value not found in discovery>>
     type = "SearchDomain"
   }
+  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 resource "oci_core_route_table" "public_subnet_route_table" {
   count = var.public_subnet ? 1 : 0
@@ -179,17 +190,17 @@ resource "oci_core_route_table" "public_subnet_route_table" {
   vcn_id         = oci_core_vcn.vcn.id
 
   #Optional
-  defined_tags  = {}
   display_name  = "Public Subnet Route Table"
   freeform_tags = {}
   route_rules {
     #Required
     network_entity_id = join("", oci_core_internet_gateway.internet_gateway[*].id)
 
-    #Optional
-    cidr_block  = "0.0.0.0/0"
-    description = "Internet Gateway"
+    destination      = "0.0.0.0/0"
+    destination_type = "CIDR_BLOCK"
+    description      = "Internet Gateway"
   }
+  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 resource "oci_core_nat_gateway" "nat_gateway" {
   count          = 1
@@ -201,6 +212,7 @@ resource "oci_core_nat_gateway" "nat_gateway" {
   # defined_tags = {}
   display_name = "NAT Gateway"
   # freeform_tags = {}
+  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 resource "oci_core_route_table" "private_subnet_route_table" {
   count = 1
@@ -209,7 +221,6 @@ resource "oci_core_route_table" "private_subnet_route_table" {
   vcn_id         = oci_core_vcn.vcn.id
 
   #Optional
-  defined_tags  = {}
   display_name  = "Private Subnet Route Table"
   freeform_tags = {}
   route_rules {
@@ -217,9 +228,11 @@ resource "oci_core_route_table" "private_subnet_route_table" {
     network_entity_id = join("", oci_core_nat_gateway.nat_gateway[*].id)
 
     #Optional
-    cidr_block  = "0.0.0.0/0"
-    description = "NAT Gateway"
+    destination      = "0.0.0.0/0"
+    destination_type = "CIDR_BLOCK"
+    description      = "NAT Gateway"
   }
+  defined_tags = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 
 module "app_private_subnet" {
@@ -233,6 +246,7 @@ module "app_private_subnet" {
   security_list_ids = [oci_core_default_security_list.default_security_list.id,
   module.jboss_security_list.id]
   route_table_id = join("", oci_core_route_table.private_subnet_route_table[*].id)
+  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 module "db_private_subnet" {
   source         = "./modules/network/subnet/"
@@ -245,6 +259,7 @@ module "db_private_subnet" {
   security_list_ids = [oci_core_default_security_list.default_security_list.id,
   module.atp_security_list.id]
   route_table_id = join("", oci_core_route_table.private_subnet_route_table[*].id)
+  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }
 module "public_subnet" {
   source         = "./modules/network/subnet/"
@@ -257,4 +272,5 @@ module "public_subnet" {
   security_list_ids = [oci_core_default_security_list.default_security_list.id,
   module.loadbalancer_security_list.id]
   route_table_id = join("", oci_core_route_table.public_subnet_route_table[*].id)
+  defined_tags   = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }

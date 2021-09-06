@@ -1,66 +1,110 @@
 ## Copyright © 2021, Oracle and/or its affiliates. 
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
-title: Jboss/Wildfly Terraform Input Variables
-description: Jboss/Wildfly Terraform Input Variables
+title: Deploy WildFly connected to an autonomous database
+description: Deploy WildFly connected to an autonomous database
 schemaVersion: 1.1.0
 version: "20200821"
 variableGroups:
-  - title: "Network"
-    variables:
-      - ${compartment_id}
-      - ${vcn_cidr_block}
-      - prefix
-
-  - title: "Instances"
-    variables:
-      - jboss_node_count
-      - jboss_vm_shape
-      - ssh_authorized_keys
-      - jboss_admin_username
-      - jboss_admin_password
-
-  - title: "Deployment Mode"
-    variables:
-      - domain_mode
-
-  - title: "Bastion"
-    variables:
-      - bastion_vm_shape
-
-  - title: "Provision Autonomous Database"
-    variables:
-      - provision_atp
-
-  - title: "Autonomous Database (Transaction Processing)"
-    visible: provision_atp
-    variables:
-      - atp_admin_password
-      - atp_display_name
-      - atp_db_name
-      - atp_cpu_core_count
-      - atp_storage_tbs
-      - atp_autoscaling
-
-  - title: "Create a JDBC Datasource"
-    visible: provision_atp
-    variables:
-      - create_jdbc_ds
-
-  - title: "JDBC Connection"
-    visible: create_jdbc_ds
-    variables:
-      - ds_name
-      - atp_username
-      - atp_password
-
-  - title: "Hidden Variables"
+  - title: General Configuration
     visible: false
     variables:
-      - region
-      - tenancy_ocid
-      - public_subnet
-      - atp_private_subnet
+    - tenancy_ocid
+    - region
+    - release
+    - public_subnet
+
+  - title: Required Configuration
+    visible: true  
+    variables:
+    - compartment_id
+    - jboss_node_count
+    - jboss_admin_password
+    - atp_admin_password
+    - show_advanced
+  
+  - title: Networking Optional Configuration
+    visible: 
+        and:
+          - show_advanced
+    variables:
+    - vcn_cidr_block
+    - prefix
+
+  - title: Load Balancer Configuration
+    visible: 
+        and:
+          - show_advanced
+    variables:
+    - lb_shape 
+    - flex_lb_min_shape
+    - flex_lb_max_shape 
+
+  - title: Compute Optional Configuration
+    visible: 
+        and:
+          - show_advanced
+    variables:
+    - jboss_vm_shape
+    - jboss_vm_flex_shape_ocpu
+    - jboss_vm_flex_shape_mem
+    - ssh_authorized_keys
+    - jboss_admin_username
+
+  - title: JBoss/WildFly Deployment Mode
+    visible: 
+        and:
+          - show_advanced
+    variables:
+    - domain_mode
+
+  - title: Bastion Optional Configuration
+    visible: 
+        and:
+          - show_advanced
+    variables:
+    - bastion_vm_shape
+    - bastion_vm_flex_shape_ocpu
+    - bastion_vm_flex_shape_mem
+
+  - title: Provision Autonomous Database Optional Configuration
+    visible: 
+        and:
+          - show_advanced
+    variables:
+    - provision_atp
+
+  - title: Autonomous Database (ATP) Optional Configuration
+    visible: 
+        and:
+          - show_advanced
+          - provision_atp
+    variables:
+    - atp_private_subnet  
+    - atp_display_name
+    - atp_db_name
+    - atp_cpu_core_count
+    - atp_storage_tbs
+    - atp_autoscaling
+
+  - title: Create a JDBC Datasource Optional Configuration
+    visible: 
+        and:
+          - show_advanced
+          - provision_atp
+    variables:
+    - create_jdbc_ds
+
+  - title: JDBC Connection Optional Configuration
+    visible: 
+        and:
+          - show_advanced
+          - provision_atp
+          - create_jdbc_ds
+    variables:
+    - ds_name
+    - atp_username
+    - atp_password
 
 variables:
   # Hidden variables
@@ -75,6 +119,13 @@ variables:
     title: Region
     description: The region in which to create all resources
     required: true
+
+  show_advanced:
+    type: boolean
+    title: "Show advanced options?"
+    description: "Shows advanced options."
+    visible: true
+    default: false
 
   # Exposed variables
   compartment_id:
@@ -105,13 +156,64 @@ variables:
     description: Number of VMs to provision
     type: number
     required: true
-    default: 1
+    default: 2
 
   ssh_authorized_keys:
     type: oci:core:ssh:publickey
     title: SSH Public Key
     required: true
     description: Public SSH Key to access VM via SSH
+
+  lb_shape:
+    type: enum
+    title: "LoadBalancer Shape"
+    description: "Choose LoadBalancer Shape"
+    default: "flexible"
+    required: false 
+    enum:
+      - "flexible"
+      - "100Mbps"
+      - "10Mbps"
+      - "10Mbps-Micro"
+      - "400Mbps"
+      - "8000Mbps"
+
+  flex_lb_min_shape:
+    type: enum
+    required: false
+    default: "10"
+    title: "LB Flex Min Shape"
+    description: "Choose Minimum Shape for Flex Load Balancer."
+    enum:
+      - "10"
+      - "100"
+      - "1000"
+      - "400"
+      - "8000"
+    visible:
+      and:
+        - eq:
+          - lb_shape 
+          - "flexible"
+
+  flex_lb_max_shape:
+    type: enum
+    required: false
+    default: "100"
+    title: "LB Flex Max Shape"
+    description: "Choose Maximum Shape for Flex Load Balancer."
+    enum:
+      - "10"
+      - "100"
+      - "1000"
+      - "400"
+      - "8000"
+    visible:
+      and:
+        - eq:
+          - lb_shape 
+          - "flexible"
+
 
   jboss_vm_shape:
     type: oci:core:instanceshape:name
@@ -120,6 +222,56 @@ variables:
     required: true
     dependsOn:
       compartmentId: ${compartment_id}
+
+  jboss_vm_flex_shape_ocpu:
+    type: number
+    required: false
+    minimum: 1
+    maximum: 128
+    multipleOf: 1
+    default: 1
+    title: "Flex Shape OCPUs"
+    description: "Choose number of OCPUs for Flex Shape."
+    visible:
+      and:
+        - or:
+          - eq:
+            - jboss_vm_shape 
+            - "VM.Standard.E3.Flex"
+          - eq:
+            - jboss_vm_shape 
+            - "VM.Standard.E4.Flex"
+          - eq:
+            - jboss_vm_shape 
+            - "VM.Standard.A1.Flex"
+          - eq:
+            - jboss_vm_shape 
+            - "VM.Optimized3.Flex"
+
+  jboss_vm_flex_shape_mem:
+    type: number
+    required: false
+    minimum: 1
+    maximum: 128
+    multipleOf: 1
+    default: 10
+    title: "Flex Shape Memory (GB)"
+    description: "Choose number GB for Flex Shape Memory."
+    visible:
+      and:
+        - or:
+          - eq:
+            - jboss_vm_shape 
+            - "VM.Standard.E3.Flex"
+          - eq:
+            - jboss_vm_shape 
+            - "VM.Standard.E4.Flex"
+          - eq:
+            - jboss_vm_shape 
+            - "VM.Standard.A1.Flex"
+          - eq:
+            - jboss_vm_shape 
+            - "VM.Optimized3.Flex"
 
   jboss_admin_username:
     type: string
@@ -143,6 +295,56 @@ variables:
     dependsOn:
       compartmentId: ${compartment_id}
 
+  bastion_vm_flex_shape_ocpu:
+    type: number
+    required: false
+    minimum: 1
+    maximum: 128
+    multipleOf: 1
+    default: 1
+    title: "Flex Shape OCPUs"
+    description: "Choose number of OCPUs for Flex Shape."
+    visible:
+      and:
+        - or:
+          - eq:
+            - bastion_vm_shape 
+            - "VM.Standard.E3.Flex"
+          - eq:
+            - bastion_vm_shape 
+            - "VM.Standard.E4.Flex"
+          - eq:
+            - bastion_vm_shape 
+            - "VM.Standard.A1.Flex"
+          - eq:
+            - bastion_vm_shape 
+            - "VM.Optimized3.Flex"
+
+  bastion_vm_flex_shape_mem:
+    type: number
+    required: false
+    minimum: 1
+    maximum: 128
+    multipleOf: 1
+    default: 1
+    title: "Flex Shape Memory (GB)"
+    description: "Choose number GB for Flex Shape Memory."
+    visible:
+      and:
+        - or:
+          - eq:
+            - bastion_vm_shape 
+            - "VM.Standard.E3.Flex"
+          - eq:
+            - bastion_vm_shape 
+            - "VM.Standard.E4.Flex"
+          - eq:
+            - bastion_vm_shape 
+            - "VM.Standard.A1.Flex"
+          - eq:
+            - bastion_vm_shape 
+            - "VM.Optimized3.Flex"
+
   provision_atp:
     type: boolean
     title: Provision an Autonomous Database (ATP)
@@ -162,7 +364,7 @@ variables:
     title: Autonomous DB Administrator Password
     description: The password for the admin user (12 to 30 characters [a-zA-Z0-9@#$!&%]$)
     required: true
-    pattern: "^[a-zA-Z0-9@#$!&%]{12,30}$"
+    pattern: ^[A-Za-z][A-Za-z0-9_#\$]+$ 
 
   atp_display_name:
     type: string
