@@ -20,6 +20,7 @@ variableGroups:
     - compartment_id
     - jboss_node_count
     - jboss_admin_password
+    - provision_atp
     - show_advanced
   
   - title: Networking Optional Configuration
@@ -65,13 +66,6 @@ variableGroups:
     - bastion_vm_shape
     - bastion_vm_flex_shape_ocpu
     - bastion_vm_flex_shape_mem
-
-  - title: Provision Autonomous Database Optional Configuration
-    visible: 
-        and:
-          - show_advanced
-    variables:
-    - provision_atp
 
   - title: Autonomous Database (ATP) Optional Configuration
     visible: 
@@ -348,7 +342,7 @@ variables:
   provision_atp:
     type: boolean
     title: Provision an Autonomous Database (ATP)
-    description: Provision an Autonomous Database for Transaction Processing
+    description: Check to provision an Autonomous Database for Transaction Processing
     required: true
     default: true
 
