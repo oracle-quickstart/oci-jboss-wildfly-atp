@@ -15,7 +15,7 @@ module "jboss" {
   prefix              = var.prefix
   domain              = module.app_private_subnet.domain
   node_count          = var.jboss_node_count
-  source_id           = module.latest_ol8.image_id
+  source_id           = module.latest_ol8_jboss.image_id
   vm_shape            = var.jboss_vm_shape
   vm_flex_shape_ocpu  = var.jboss_vm_flex_shape_ocpu
   vm_flex_shape_mem   = var.jboss_vm_flex_shape_mem
@@ -32,7 +32,7 @@ module "bastion" {
   prefix              = "${var.prefix}-bastion"
   domain              = module.public_subnet.domain
   node_count          = 1
-  source_id           = module.latest_ol8.image_id
+  source_id           = module.latest_ol8_bastion.image_id
   vm_shape            = var.bastion_vm_shape
   vm_flex_shape_ocpu  = var.bastion_vm_flex_shape_ocpu
   vm_flex_shape_mem   = var.bastion_vm_flex_shape_mem

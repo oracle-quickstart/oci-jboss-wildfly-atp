@@ -4,9 +4,9 @@
 variable "tenancy_ocid" {}
 variable "region" {}
 variable "compartment_id" {}
-variable "fingerprint" {}
-variable "user_ocid" {}
-variable "private_key_path" {}
+#variable "fingerprint" {}
+#variable "user_ocid" {}
+#variable "private_key_path" {}
 
 variable "public_subnet" {
   type    = bool
@@ -40,7 +40,7 @@ variable "prefix" {
 }
 # JBoss instances
 variable "jboss_node_count" {
-  default = 2
+  default = 1
 }
 variable "jboss_vm_shape" {
   default = "VM.Standard.E3.Flex"

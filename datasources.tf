@@ -2,12 +2,21 @@
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 # Latest Oracle Linux image
-module "latest_ol8" {
+module "latest_ol8_jboss" {
   source           = "./modules/datasources/images/"
   compartment_id   = var.compartment_id
   instance_os      = "Oracle Linux"
   linux_os_version = "8"
   shape            = var.jboss_vm_shape
+}
+
+# Latest Oracle Linux image
+module "latest_ol8_bastion" {
+  source           = "./modules/datasources/images/"
+  compartment_id   = var.compartment_id
+  instance_os      = "Oracle Linux"
+  linux_os_version = "8"
+  shape            = var.bastion_vm_shape
 }
 
 # Availability domains
