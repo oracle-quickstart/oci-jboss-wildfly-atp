@@ -20,7 +20,9 @@ variableGroups:
     - compartment_id
     - jboss_node_count
     - jboss_admin_password
+    - ssh_authorized_keys
     - provision_atp
+    - atp_admin_password
     - show_advanced
   
   - title: Networking Optional Configuration
@@ -48,7 +50,6 @@ variableGroups:
     - jboss_vm_shape
     - jboss_vm_flex_shape_ocpu
     - jboss_vm_flex_shape_mem
-    - ssh_authorized_keys
     - jboss_admin_username
 
   - title: JBoss/WildFly Deployment Mode
@@ -73,7 +74,6 @@ variableGroups:
           - show_advanced
           - provision_atp
     variables:
-    - atp_admin_password
     - atp_private_subnet  
     - atp_display_name
     - atp_db_name
@@ -114,6 +114,12 @@ variables:
     description: The region in which to create all resources
     required: true
 
+  ssh_authorized_keys:
+    type: oci:core:ssh:publickey
+    title: SSH Public Key
+    required: true
+    description: Public SSH Key to access VM via SSH
+
   show_advanced:
     type: boolean
     title: "Show advanced options?"
@@ -151,12 +157,6 @@ variables:
     type: number
     required: true
     default: 1
-
-  ssh_authorized_keys:
-    type: oci:core:ssh:publickey
-    title: SSH Public Key
-    required: true
-    description: Public SSH Key to access VM via SSH
 
   lb_shape:
     type: enum
@@ -354,10 +354,15 @@ variables:
     default: false
 
   atp_admin_password:
+    visible: 
+        and:
+          - provision_atp
     type: password
     title: Autonomous DB Administrator Password
     description: The password for the admin user (12 to 30 characters [a-zA-Z0-9_@#$!&%]$)
-    required: false
+    required: 
+         and:
+          - provision_atp
     pattern: ^[A-Za-z][A-Za-z0-9_#\$]{11,29}$ 
 
   atp_display_name:
