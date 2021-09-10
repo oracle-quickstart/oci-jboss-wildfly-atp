@@ -160,13 +160,6 @@ To SCP files to the JBoss instance (i.e. to deploy applications)
 scp -o ProxyCommand="ssh -W %h:%p opc@${BASTION_IP}" <file-to-transfer.ext> opc@${HOST}:~/
 ```
 
-## Reference Architecture
-
-See the document about this reference architecture here: [https://docs.oracle.com/en/solutions/wildfly-oci/index.html](https://docs.oracle.com/en/solutions/wildfly-oci/index.html)
-
-
-![](https://docs.oracle.com/en/solutions/wildfly-oci/img/architecture-wildfly-oci.png)
-
 ## Tear down
 
 ### Locally
@@ -184,3 +177,10 @@ tf destroy
 3. Click **Terraform Actions** then **Destroy**
 
 4. Once the destroy job finished, delete the stack.
+
+## Architecture Diagram
+![](./images/architecture-wildfly-oci.png)
+
+## Reference Archirecture
+
+For details of the architecture, see [_Deploy WildFly connected to an autonomous database_](https://docs.oracle.com/en/solutions/wildfly-oci/index.html)

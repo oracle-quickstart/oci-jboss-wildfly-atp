@@ -6,16 +6,17 @@
 ################
 
 module "atp_db" {
-  source         = "./modules/atp/"
-  provision_atp  = var.provision_atp
+  source             = "./modules/atp/"
+  provision_atp      = var.provision_atp
   atp_private_subnet = var.atp_private_subnet
-  compartment_id = var.compartment_id
-  vcn_id         = oci_core_vcn.vcn.id
-  subnet_id      = module.db_private_subnet.id
-  admin_password = var.atp_admin_password
-  cpu_core_count = var.atp_cpu_core_count
-  display_name   = var.atp_display_name
-  db_name        = var.atp_db_name
-  storage_tbs    = var.atp_storage_tbs
-  autoscaling    = var.atp_autoscaling
+  compartment_id     = var.compartment_id
+  vcn_id             = oci_core_vcn.vcn.id
+  subnet_id          = module.db_private_subnet.id
+  admin_password     = var.atp_admin_password
+  cpu_core_count     = var.atp_cpu_core_count
+  display_name       = var.atp_display_name
+  db_name            = var.atp_db_name
+  storage_tbs        = var.atp_storage_tbs
+  autoscaling        = var.atp_autoscaling
+  defined_tags       = { "${oci_identity_tag_namespace.ArchitectureCenterTagNamespace.name}.${oci_identity_tag.ArchitectureCenterTag.name}" = var.release }
 }

@@ -2,20 +2,25 @@
 ## All rights reserved. The Universal Permissive License (UPL), Version 1.0 as shown at http://oss.oracle.com/licenses/upl
 
 # Variables
-variable cidr_block {}
-variable compartment_id {}
-variable vcn_id {}
-variable display_name {}
-variable is_private {
+variable "cidr_block" {}
+variable "compartment_id" {}
+variable "vcn_id" {}
+variable "display_name" {}
+
+variable "defined_tags" {
+  default = ""
+}
+
+variable "is_private" {
   default = true
 }
 variable "create_subnet" {
   default = false
 }
-variable security_list_ids {
+variable "security_list_ids" {
   default = []
 }
-variable route_table_id {}
+variable "route_table_id" {}
 
 # Datasources
 data "oci_core_vcn" "vcn" {
@@ -31,7 +36,7 @@ resource "oci_core_subnet" "subnet" {
 
   dhcp_options_id = data.oci_core_vcn.vcn.default_dhcp_options_id
   display_name    = var.display_name
-  dns_label       = substr(replace(replace(lower(var.display_name), " ", ""), "_", ""),0, 15)
+  dns_label       = substr(replace(replace(lower(var.display_name), " ", ""), "_", ""), 0, 15)
   freeform_tags   = {}
 
   #ipv6cidr_block = <<Optional value not found in discovery>>
@@ -40,16 +45,17 @@ resource "oci_core_subnet" "subnet" {
 
   security_list_ids = var.security_list_ids
 
-  vcn_id = data.oci_core_vcn.vcn.id
+  vcn_id       = data.oci_core_vcn.vcn.id
+  defined_tags = var.defined_tags
 }
 
 # Outputs
 output "id" {
-  value = join("",oci_core_subnet.subnet[*].id)
+  value = join("", oci_core_subnet.subnet[*].id)
 }
 output "cidr_block" {
-  value = join("",oci_core_subnet.subnet[*].cidr_block)
+  value = join("", oci_core_subnet.subnet[*].cidr_block)
 }
 output "domain" {
-  value = join("",oci_core_subnet.subnet[*].subnet_domain_name)
+  value = join("", oci_core_subnet.subnet[*].subnet_domain_name)
 }
