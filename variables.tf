@@ -116,7 +116,7 @@ variable "atp_autoscaling" {
 # JDBC connection
 variable "create_jdbc_ds" {
   type    = bool
-  default = true
+  default = false
 }
 variable "ds_name" {
   type    = string
@@ -134,4 +134,9 @@ variable "atp_password" {
 variable "domain_mode" {
   type    = bool
   default = true
+}
+
+variable "show_advanced" {
+  type    = bool
+  default = false
 }

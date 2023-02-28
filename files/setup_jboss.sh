@@ -20,11 +20,14 @@ rm wildfly-${JBOSS_VERSION}.tar.gz
 echo "Install JDBC driver for Oracle DB" >> /tmp/init.log
 JDBC_VERSION=ojdbc8-full
 ORACLE_JDBC_MODULE_DIR=/opt/wildfly/modules/system/layers/base/com/oracle/main/
-curl -LO -H 'Cookie: oraclelicense=accept-securebackup-cookie' -O https://download.oracle.com/otn-pub/otn_software/jdbc/${JDBC_VERSION}.tar.gz
 
-mkdir -p ${ORACLE_JDBC_MODULE_DIR}
-tar zxf ${JDBC_VERSION}.tar.gz --strip-components=1 -C ${ORACLE_JDBC_MODULE_DIR}
-rm ${JDBC_VERSION}.tar.gz
+sudo curl -LO -O https://download.oracle.com/otn-pub/otn_software/jdbc/1918/${JDBC_VERSION}.tar.gz \
+    && sudo mkdir -p ${ORACLE_JDBC_MODULE_DIR} \
+    && sudo tar xf ${JDBC_VERSION}.tar.gz -C ${ORACLE_JDBC_MODULE_DIR} \
+    && sudo rm ${JDBC_VERSION}.tar.gz
+
+# mkdir -p ${ORACLE_JDBC_MODULE_DIR}
+# wget -c https://download.oracle.com/otn-pub/otn_software/jdbc/1918/${JDBC_VERSION}.tar.gz -O - | tar -x -C ${ORACLE_JDBC_MODULE_DIR}
 
 # echo "Move the module.xml file to the JDBC driver folder" >> /tmp/init.log
 # Can't create a module in Domain mode, so creating with a file for all modes.
