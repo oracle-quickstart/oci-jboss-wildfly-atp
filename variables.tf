@@ -135,3 +135,8 @@ variable "domain_mode" {
   type    = bool
   default = true
 }
+
+variable "show_advanced" {
+  type    = bool
+  default = false
+}
